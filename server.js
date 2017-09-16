@@ -36,7 +36,7 @@ http.createServer((req, res) => {
   res.end(latest, 'binary');
 }).listen(8080);
 
-const getTimeout = () => getMillisecondsUntilNextSecond() + 1000*(getSecondsUntilNextMinute() + 60*getMinutesUntilNextHour());
+const getTimeout = () => (getMillisecondsUntilNextSecond() + 1000*(getSecondsUntilNextMinute() + 60*getMinutesUntilNextHour())) % (10*60*1000);
 const getMinutesUntilNextHour = () => 59 - new Date().getMinutes();
 const getSecondsUntilNextMinute = () => 59 - new Date().getSeconds();
 const getMillisecondsUntilNextSecond = () => 1000 - new Date().getMilliseconds();
