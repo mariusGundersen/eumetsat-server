@@ -7,7 +7,16 @@ async function fetch(){
   console.log('fetching', new Date());
   try{
     const image = await Jimp.read("http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSGIODC_RGBNatColour_LowResolution.jpg");
-    const buffer = await new Promise((res, rej) => image.resize(360, 360).getBuffer('image/jpeg', (err, buffer) => err ? rej(err) : res(buffer)));
+    const buffer = await new Promise((res, rej) => {
+      image
+        .resize(360, 360)
+        .scan(0, 352, 360, 360, function (x, y, idx) {
+          this.bitmap.data[ idx + 0 ] = 0;
+          this.bitmap.data[ idx + 1 ] = 0;
+          this.bitmap.data[ idx + 2 ] = 0;
+        })
+        .getBuffer('image/jpeg', (err, buffer) => err ? rej(err) : res(buffer))
+    });
     latest = buffer;
     console.log('fetch success');
   }catch(e){
