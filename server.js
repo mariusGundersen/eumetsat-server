@@ -22,6 +22,7 @@ async function fetch(){
 fetch();
 
 http.createServer((req, res) => {
+  console.log('->', new Date().toISOString(), req.url);
   res.writeHead(200, {'Content-Type': 'image/jpeg' });
   res.end(latest, 'binary');
 }).listen(8080);
