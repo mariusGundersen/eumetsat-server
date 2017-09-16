@@ -6,7 +6,7 @@ let latest = null;
 async function fetch(){
   console.log('fetching', new Date());
   try{
-    const image = await Jimp.read("http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSGIODC_RGBNatColour_LowResolution.jpg");
+    const image = await Jimp.read("http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSG_RGBNatColour_LowResolution.jpg");
     const buffer = await new Promise((res, rej) => {
       image
         .resize(360, 360)
