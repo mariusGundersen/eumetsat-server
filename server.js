@@ -1,6 +1,7 @@
 const Jimp = require('jimp');
 const http = require('http');
 
+let latestHash = null;
 let latest = null;
 
 async function fetch(){
@@ -8,6 +9,8 @@ async function fetch(){
   try{
     const image = await Jimp.read("http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSG_RGBNatColour_LowResolution.jpg");
     const buffer = await new Promise((res, rej) => {
+      const hash = image.hash();
+      if(latestHash == hash) return rej();
       image
         .resize(360, 360)
         .scan(0, 352, 360, 360, function (x, y, idx) {
@@ -20,7 +23,10 @@ async function fetch(){
     latest = buffer;
     console.log('fetch success');
   }catch(e){
-    console.error(e.message)
+    console.log(`fetch failed`)
+    console.error(e.message);
+    console.log(`next fetch in ${60}s`)
+    setTimeout(fetch, 1000*60);
   }finally{
     const milliseconds = getTimeout();
     console.log(`next fetch in ${milliseconds/1000}s`)
