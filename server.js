@@ -1,48 +1,49 @@
-const Jimp = require('jimp');
-const http = require('http');
+const Koa = require('koa');
+const Router = require('koa-router');
 
-let latestHash = null;
-let latest = null;
+const fetch = require('./fetch.js');
 
-async function fetch(){
-  console.log('fetching', new Date());
-  try{
-    const image = await Jimp.read("http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSG_RGBNatColour_LowResolution.jpg");
-    const buffer = await new Promise((res, rej) => {
-      const hash = image.hash();
-      if(latestHash == hash) return rej();
-      image
-        .resize(360, 360)
-        .scan(0, 352, 360, 360, function (x, y, idx) {
-          this.bitmap.data[ idx + 0 ] = 0;
-          this.bitmap.data[ idx + 1 ] = 0;
-          this.bitmap.data[ idx + 2 ] = 0;
-        })
-        .getBuffer('image/jpeg', (err, buffer) => err ? rej(err) : res(buffer))
-    });
-    latest = buffer;
-    console.log('fetch success');
-  }catch(e){
-    console.log(`fetch failed`)
-    console.error(e.message);
-    console.log(`next fetch in ${60}s`)
-    setTimeout(fetch, 1000*60);
-  }finally{
-    const milliseconds = getTimeout();
-    console.log(`next fetch in ${milliseconds/1000}s`)
-    setTimeout(fetch, milliseconds);
+const app = new Koa();
+const router = new Router();
+
+const images = [
+  {
+    longitude: 0,
+    get: fetch({
+      url: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSG_RGBNatColour_LowResolution.jpg",
+      refresh: 60*60*1000
+    })
+  },
+  {
+    longitude: 41.5,
+    get: fetch({
+      url: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSGIODC_RGBNatColour_LowResolution.jpg",
+      refresh: 60*60*1000
+    })
   }
-}
+];
 
-fetch();
-
-http.createServer((req, res) => {
+router.get('/:longitude/:time.jpeg', ({req, res, params}, next) => {
+  const latest = closest(parseFloat(params.longitude)).get();
   console.log('->', new Date().toISOString(), req.url);
   res.writeHead(200, {'Content-Type': 'image/jpeg' });
   res.end(latest, 'binary');
-}).listen(8080);
+});
 
-const getTimeout = () => (getMillisecondsUntilNextSecond() + 1000*(getSecondsUntilNextMinute() + 60*getMinutesUntilNextHour())) % (10*60*1000);
-const getMinutesUntilNextHour = () => 59 - new Date().getMinutes();
-const getSecondsUntilNextMinute = () => 59 - new Date().getSeconds();
-const getMillisecondsUntilNextSecond = () => 1000 - new Date().getMilliseconds();
+router.get('/', ({req, res}, next) => {
+  res.writeHead(200, {'Content-Type': 'text/html' });
+  res.end(`<!doctype html>
+  <html>
+    <h1>Earth View</h1>
+    <img src="/0/latest.jpeg" />
+    <img src="/41.5/latest.jpeg" />
+  </html>`)
+})
+
+app
+.use(router.routes())
+.listen(8080);
+
+function closest(longitude){
+  return images.sort((a, b) => Math.abs(a.longitude - longitude) - Math.abs(b.longitude - longitude))[0];
+}
