@@ -44,7 +44,7 @@ const images = [
   {
     longitude: -89.5,
     get: fetch({
-      image: timestamp => `http://rammb-slider.cira.colostate.edu/data/imagery/${timestamp.toString(10).substr(0,8)}/goes-16---full_disk/geocolor/${timestamp}/00/000_000.png`,
+      image: timestamp => `http://rammb-slider.cira.colostate.edu/data/imagery/${timestamp.toString(10).substr(0,8)}/goes-16---full_disk/natural_color/${timestamp}/00/000_000.png`,
       json: "http://rammb-slider.cira.colostate.edu/data/json/goes-16/full_disk/geocolor/latest_times.json",
       log: (...m) => console.log(chalk.bgMagenta(...m))
     })
