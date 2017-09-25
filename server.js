@@ -70,5 +70,7 @@ app
 .listen(8080);
 
 function closest(longitude){
+  while(longitude>180) longitude-=360;
+  while(longitude<-180) longitude+=360;
   return images.sort((a, b) => Math.abs(a.longitude - longitude) - Math.abs(b.longitude - longitude))[0];
 }
