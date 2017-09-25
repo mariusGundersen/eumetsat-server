@@ -1,5 +1,6 @@
 const Koa = require('koa');
 const Router = require('koa-router');
+const chalk = require('chalk');
 
 const fetch = require('./fetch.js');
 
@@ -13,7 +14,8 @@ const images = [
       image: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSG_RGBNatColour_LowResolution.jpg",
       covers: [
         [0, 352, 360, 8]
-      ]
+      ],
+      log: (...m) => console.log(chalk.bgBlue(...m))
     })
   },
   {
@@ -22,7 +24,8 @@ const images = [
       image: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSGIODC_RGBNatColour_LowResolution.jpg",
       covers: [
         [0, 352, 360, 8]
-      ]
+      ],
+      log: (...m) => console.log(chalk.bgGreen(...m))
     })
   },
   {
@@ -34,7 +37,8 @@ const images = [
         [248, 0, 112, 12],
         [0, 350, 78, 10],
         [321, 350, 39, 10]
-      ]
+      ],
+      log: (...m) => console.log(chalk.bgRed(...m))
     })
   },
   {
@@ -42,6 +46,7 @@ const images = [
     get: fetch({
       image: timestamp => `http://rammb-slider.cira.colostate.edu/data/imagery/${timestamp.toString(10).substr(0,8)}/goes-16---full_disk/geocolor/${timestamp}/00/000_000.png`,
       json: "http://rammb-slider.cira.colostate.edu/data/json/goes-16/full_disk/geocolor/latest_times.json",
+      log: (...m) => console.log(chalk.bgMagenta(...m))
     })
   }
 ];
@@ -58,10 +63,10 @@ router.get('/', ({req, res}, next) => {
   res.end(`<!doctype html>
   <html>
     <h1>Earth View</h1>
+    <img src="/-89.5/latest.jpeg" />
     <img src="/0/latest.jpeg" />
     <img src="/41.5/latest.jpeg" />
     <img src="/140.7/latest.jpeg" />
-    <img src="/-89.5/latest.jpeg" />
   </html>`)
 })
 

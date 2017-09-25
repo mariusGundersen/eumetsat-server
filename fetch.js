@@ -1,14 +1,15 @@
 const Jimp = require('jimp');
 const request = require('request');
 
-module.exports = function start({image, json, covers = []}) {
+module.exports = function start({log, image, json, covers = []}) {
   let latest = undefined;
 
   async function fetch(){
     let latestHash;
+    let failCount = 0;
     while(true){
       const url = await getUrl(image, json);
-      console.log('fetching', url, new Date());
+      log('fetching', url, new Date());
       try{
         const image = await Jimp.read(url);
         let hash;
@@ -23,15 +24,17 @@ module.exports = function start({image, json, covers = []}) {
         });
         latestHash = hash;
         latest = buffer;
-        console.log('fetch success');
+        log('fetch success', latestHash);
         const milliseconds = getTimeout();
-        console.log(`next fetch in ${milliseconds/1000}s`);
+        log(`next fetch in ${milliseconds/1000}s`);
+        failCount = 0;
         await delay(milliseconds);
       }catch(e){
-        console.log(`fetch failed`)
-        console.error(e.message);
-        console.log(`next fetch in ${60}s`);
-        await delay(1000*60);
+        log(`fetch failed`)
+        log(e.message);
+        failCount++;
+        log(`next fetch in ${60*failCount}s`);
+        await delay(1000*60*failCount);
       }
     }
   }
