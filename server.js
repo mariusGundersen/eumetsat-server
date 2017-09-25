@@ -11,14 +11,30 @@ const images = [
     longitude: 0,
     get: fetch({
       url: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSG_RGBNatColour_LowResolution.jpg",
-      refresh: 60*60*1000
+      covers: [
+        [0, 352, 360, 8]
+      ]
     })
   },
   {
     longitude: 41.5,
     get: fetch({
       url: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSGIODC_RGBNatColour_LowResolution.jpg",
-      refresh: 60*60*1000
+      covers: [
+        [0, 352, 360, 8]
+      ]
+    })
+  },
+  {
+    longitude: 140.7,
+    get: fetch({
+      url: "http://agora.ex.nii.ac.jp/digital-typhoon/himawari-3g/latest/Hsfd/RGB/latest.jpg",
+      covers: [
+        [0, 0, 110, 10],
+        [248, 0, 112, 12],
+        [0, 350, 78, 10],
+        [321, 350, 39, 10]
+      ]
     })
   }
 ];
@@ -37,6 +53,7 @@ router.get('/', ({req, res}, next) => {
     <h1>Earth View</h1>
     <img src="/0/latest.jpeg" />
     <img src="/41.5/latest.jpeg" />
+    <img src="/140.7/latest.jpeg" />
   </html>`)
 })
 

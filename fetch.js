@@ -1,6 +1,6 @@
 const Jimp = require('jimp');
 
-module.exports = function start({url}) {
+module.exports = function start({url, covers}) {
   let latest = undefined;
 
   async function fetch(){
@@ -13,14 +13,11 @@ module.exports = function start({url}) {
         const buffer = await new Promise((res, rej) => {
           hash = image.hash();
           if(latestHash == hash) return rej(new Error('not updated yet'));
-          image
-            .resize(360, 360)
-            .scan(0, 352, 360, 360, function (x, y, idx) {
-              this.bitmap.data[ idx + 0 ] = 0;
-              this.bitmap.data[ idx + 1 ] = 0;
-              this.bitmap.data[ idx + 2 ] = 0;
-            })
-            .getBuffer('image/jpeg', (err, buffer) => err ? rej(err) : res(buffer))
+          image.resize(360, 360);
+          for(const [x, y, width, height] of covers){
+            image.scan(x, y, width, height, blacken);
+          }
+          image.getBuffer('image/jpeg', (err, buffer) => err ? rej(err) : res(buffer))
         });
         latestHash = hash;
         latest = buffer;
@@ -48,3 +45,8 @@ const getTimeout = () => getMillisecondsUntilNextSecond() + 1000*(getSecondsUnti
 const getMinutesUntilNextHour = () => 59 - new Date().getMinutes();
 const getSecondsUntilNextMinute = () => 59 - new Date().getSeconds();
 const getMillisecondsUntilNextSecond = () => 1000 - new Date().getMilliseconds();
+function blacken(x, y, idx) {
+  this.bitmap.data[ idx + 0 ] = 0;
+  this.bitmap.data[ idx + 1 ] = 0;
+  this.bitmap.data[ idx + 2 ] = 0;
+}
