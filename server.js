@@ -10,7 +10,7 @@ const images = [
   {
     longitude: 0,
     get: fetch({
-      url: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSG_RGBNatColour_LowResolution.jpg",
+      image: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSG_RGBNatColour_LowResolution.jpg",
       covers: [
         [0, 352, 360, 8]
       ]
@@ -19,7 +19,7 @@ const images = [
   {
     longitude: 41.5,
     get: fetch({
-      url: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSGIODC_RGBNatColour_LowResolution.jpg",
+      image: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSGIODC_RGBNatColour_LowResolution.jpg",
       covers: [
         [0, 352, 360, 8]
       ]
@@ -28,13 +28,20 @@ const images = [
   {
     longitude: 140.7,
     get: fetch({
-      url: "http://agora.ex.nii.ac.jp/digital-typhoon/himawari-3g/latest/Hsfd/RGB/latest.jpg",
+      image: "http://agora.ex.nii.ac.jp/digital-typhoon/himawari-3g/latest/Hsfd/RGB/latest.jpg",
       covers: [
         [0, 0, 110, 10],
         [248, 0, 112, 12],
         [0, 350, 78, 10],
         [321, 350, 39, 10]
       ]
+    })
+  },
+  {
+    longitude: -89.5,
+    get: fetch({
+      image: timestamp => `http://rammb-slider.cira.colostate.edu/data/imagery/${timestamp.toString(10).substr(0,8)}/goes-16---full_disk/geocolor/${timestamp}/00/000_000.png`,
+      json: "http://rammb-slider.cira.colostate.edu/data/json/goes-16/full_disk/geocolor/latest_times.json",
     })
   }
 ];
@@ -54,6 +61,7 @@ router.get('/', ({req, res}, next) => {
     <img src="/0/latest.jpeg" />
     <img src="/41.5/latest.jpeg" />
     <img src="/140.7/latest.jpeg" />
+    <img src="/-89.5/latest.jpeg" />
   </html>`)
 })
 

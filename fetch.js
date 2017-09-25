@@ -1,11 +1,13 @@
 const Jimp = require('jimp');
+const request = require('request');
 
-module.exports = function start({url, covers}) {
+module.exports = function start({image, json, covers = []}) {
   let latest = undefined;
 
   async function fetch(){
     let latestHash;
     while(true){
+      const url = await getUrl(image, json);
       console.log('fetching', url, new Date());
       try{
         const image = await Jimp.read(url);
@@ -49,4 +51,18 @@ function blacken(x, y, idx) {
   this.bitmap.data[ idx + 0 ] = 0;
   this.bitmap.data[ idx + 1 ] = 0;
   this.bitmap.data[ idx + 2 ] = 0;
+}
+
+async function getUrl(imgUrl, jsonUrl){
+  if(!jsonUrl) return imgUrl;
+
+  const times = await getJson(jsonUrl);
+  return imgUrl(times['timestamps_int'][0]);
+}
+
+async function getJson(url){
+  return new Promise((res, rej) => request({
+    url,
+    json: true
+  }, (error, response, body) => error ? rej(error) : res(body)));
 }
