@@ -1,7 +1,7 @@
 const Jimp = require('jimp');
 const request = require('request');
 
-module.exports = function start({log, image, json, covers = []}) {
+module.exports = function start({log, imageUrl, json, covers = []}) {
   let latest = undefined;
 
   async function fetch(){
@@ -9,7 +9,7 @@ module.exports = function start({log, image, json, covers = []}) {
     let failCount = 0;
     while(true){
       try{
-        const url = await getUrl(image, json, log);
+        const url = await getUrl(imageUrl, json, log);
         log('fetching', url, new Date());
         const image = await Jimp.read(url);
         let hash;
