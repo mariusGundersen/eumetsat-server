@@ -15,7 +15,7 @@ const images = [
       covers: [
         [0, 352, 360, 8]
       ],
-      log: (...m) => console.log(chalk.bgBlue(...m))
+      log: (...m) => console.log('[  0.0]', ...m)
     })
   },
   {
@@ -25,7 +25,7 @@ const images = [
       covers: [
         [0, 352, 360, 8]
       ],
-      log: (...m) => console.log(chalk.bgGreen(...m))
+      log: (...m) => console.log('[ 41.5]', ...m)
     })
   },
   {
@@ -38,7 +38,7 @@ const images = [
         [0, 350, 78, 10],
         [321, 350, 39, 10]
       ],
-      log: (...m) => console.log(chalk.bgRed(...m))
+      log: (...m) => console.log('[140.7]', ...m)
     })
   },
   {
@@ -46,7 +46,7 @@ const images = [
     get: fetch({
       image: timestamp => `http://rammb-slider.cira.colostate.edu/data/imagery/${timestamp.toString(10).substr(0,8)}/goes-16---full_disk/natural_color/${timestamp}/00/000_000.png`,
       json: "http://rammb-slider.cira.colostate.edu/data/json/goes-16/full_disk/geocolor/latest_times.json",
-      log: (...m) => console.log(chalk.bgMagenta(...m))
+      log: (...m) => console.log('[-89.5]', ...m)
     })
   }
 ];

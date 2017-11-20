@@ -8,9 +8,9 @@ module.exports = function start({log, image, json, covers = []}) {
     let latestHash;
     let failCount = 0;
     while(true){
-      const url = await getUrl(image, json);
-      log('fetching', url, new Date());
       try{
+        const url = await getUrl(image, json, log);
+        log('fetching', url, new Date());
         const image = await Jimp.read(url);
         let hash;
         const buffer = await new Promise((res, rej) => {
@@ -56,10 +56,12 @@ function blacken(x, y, idx) {
   this.bitmap.data[ idx + 2 ] = 0;
 }
 
-async function getUrl(imgUrl, jsonUrl){
+async function getUrl(imgUrl, jsonUrl, log){
   if(!jsonUrl) return imgUrl;
 
+  log('getting json', jsonUrl);
   const times = await getJson(jsonUrl);
+  log('got json');
   return imgUrl(times['timestamps_int'][0]);
 }
 
