@@ -31,7 +31,7 @@ const images = [
   {
     longitude: 140.7,
     get: fetch({
-      imageUrl: "http://rammb.cira.colostate.edu/ramsdis/online/images/latest_hi_res/himawari-8/full_disk_ahi_natural_color.jpg",
+      imageUrl: "http://rammb.cira.colostate.edu/ramsdis/online/images/thumb/himawari-8/full_disk_ahi_natural_color.jpg",
       covers: [
         [0, 0, 110, 10],
         [248, 0, 112, 12],
