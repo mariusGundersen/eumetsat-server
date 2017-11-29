@@ -3,10 +3,12 @@ const request = require('request');
 
 module.exports = function start({log, imageUrl, json, covers = []}) {
   let latest = undefined;
+  let lastFetch = new Date();
+  let delayNext = 0;
+  let failCount = 0;
 
   async function fetch(){
     let latestHash;
-    let failCount = 0;
     while(true){
       try{
         const url = await getUrl(imageUrl, json, log);
@@ -25,8 +27,10 @@ module.exports = function start({log, imageUrl, json, covers = []}) {
         latestHash = hash;
         latest = buffer;
         log('fetch success', latestHash);
+        lastFetch = new Date();
         const milliseconds = getTimeout();
         log(`next fetch in ${milliseconds/1000}s`);
+        delayNext = milliseconds;
         failCount = 0;
         await delay(milliseconds);
       }catch(e){
@@ -41,7 +45,12 @@ module.exports = function start({log, imageUrl, json, covers = []}) {
 
   fetch();
 
-  return () => latest;
+  return {
+    getLatest: () => latest,
+    lastFetch: () => lastFetch.toISOString(),
+    failCount: () => failCount,
+    nextUpdate: () => delayNext/1000
+  };
 }
 
 const delay = ms => new Promise(res => setTimeout(res, ms));

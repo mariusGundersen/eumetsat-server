@@ -9,8 +9,16 @@ const router = new Router();
 
 const images = [
   {
+    longitude: -89.5,
+    ...fetch({
+      imageUrl: timestamp => `http://rammb-slider.cira.colostate.edu/data/imagery/${timestamp.toString(10).substr(0,8)}/goes-16---full_disk/natural_color/${timestamp}/00/000_000.png`,
+      json: "http://rammb-slider.cira.colostate.edu/data/json/goes-16/full_disk/geocolor/latest_times.json",
+      log: (...m) => console.log('[-89.5]', ...m)
+    })
+  },
+  {
     longitude: 0,
-    get: fetch({
+    ...fetch({
       imageUrl: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSG_RGBNatColour_LowResolution.jpg",
       covers: [
         [0, 352, 360, 8]
@@ -20,7 +28,7 @@ const images = [
   },
   {
     longitude: 41.5,
-    get: fetch({
+    ...fetch({
       imageUrl: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSGIODC_RGBNatColour_LowResolution.jpg",
       covers: [
         [0, 352, 360, 8]
@@ -30,7 +38,7 @@ const images = [
   },
   {
     longitude: 140.7,
-    get: fetch({
+    ...fetch({
       imageUrl: "http://rammb.cira.colostate.edu/ramsdis/online/images/thumb/himawari-8/full_disk_ahi_natural_color.jpg",
       covers: [
         [0, 0, 110, 10],
@@ -40,19 +48,11 @@ const images = [
       ],
       log: (...m) => console.log('[140.7]', ...m)
     })
-  },
-  {
-    longitude: -89.5,
-    get: fetch({
-      imageUrl: timestamp => `http://rammb-slider.cira.colostate.edu/data/imagery/${timestamp.toString(10).substr(0,8)}/goes-16---full_disk/natural_color/${timestamp}/00/000_000.png`,
-      json: "http://rammb-slider.cira.colostate.edu/data/json/goes-16/full_disk/geocolor/latest_times.json",
-      log: (...m) => console.log('[-89.5]', ...m)
-    })
   }
 ];
 
 router.get('/:longitude/:time.jpeg', ({req, res, params}, next) => {
-  const latest = closest(parseFloat(params.longitude)).get();
+  const latest = closest(parseFloat(params.longitude)).getLatest();
   console.log('->', new Date().toISOString(), req.url);
   res.writeHead(200, {'Content-Type': 'image/jpeg' });
   res.end(latest, 'binary');
@@ -60,13 +60,18 @@ router.get('/:longitude/:time.jpeg', ({req, res, params}, next) => {
 
 router.get('/', ({req, res}, next) => {
   res.writeHead(200, {'Content-Type': 'text/html' });
-  res.end(`<!doctype html>
+  res.end(template`<!doctype html>
   <html>
-    <h1>Earth View</h1>
-    <img src="/-89.5/latest.jpeg" />
-    <img src="/0/latest.jpeg" />
-    <img src="/41.5/latest.jpeg" />
-    <img src="/140.7/latest.jpeg" />
+    <style>
+      body {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        background: black;
+        color: #eee;
+      }
+    </style>
+    ${images.map(image)}
   </html>`)
 })
 
@@ -74,8 +79,24 @@ app
 .use(router.routes())
 .listen(8080);
 
+function image(img){
+  return template`<div class="location">
+    <h2>Longitude: ${img.longitude}</h2>
+    <img src="/${img.longitude}/latest.jpeg" />
+    <ul>
+      <li>Last fetch: ${img.lastFetch()}
+      <li>Next fetch: ${img.nextUpdate()} seconds
+      <li>Fail count: ${img.failCount()}
+    </ul>
+  </div>`;
+}
+
 function closest(longitude){
   while(longitude>180) longitude-=360;
   while(longitude<-180) longitude+=360;
-  return images.sort((a, b) => Math.abs(a.longitude - longitude) - Math.abs(b.longitude - longitude))[0];
+  return [...images].sort((a, b) => Math.abs(a.longitude - longitude) - Math.abs(b.longitude - longitude))[0];
+}
+
+function template(strings, ...objects){
+  return String.raw(strings, ...objects.map(o => Array.isArray(o) ? o.join('') : o))
 }
