@@ -3,6 +3,7 @@ const request = require('request');
 
 module.exports = function start({log, imageUrl, json, covers = []}) {
   let latest = undefined;
+  let fetchCount = 0;
   let lastFetch = new Date();
   let delayNext = 0;
   let failCount = 0;
@@ -32,13 +33,15 @@ module.exports = function start({log, imageUrl, json, covers = []}) {
         log(`next fetch in ${milliseconds/1000}s`);
         delayNext = milliseconds;
         failCount = 0;
+        fetchCount = 0;
         await delay(milliseconds);
       }catch(e){
         log(`fetch failed`)
         log(e.message);
         failCount++;
+        delayNext = failCount*60*1000;
         log(`next fetch in ${60*failCount}s`);
-        await delay(1000*60*failCount);
+        await delay(delayNext);
       }
     }
   }
@@ -46,10 +49,14 @@ module.exports = function start({log, imageUrl, json, covers = []}) {
   fetch();
 
   return {
-    getLatest: () => latest,
+    getLatest(){
+      fetchCount++;
+      return latest;
+    },
     lastFetch: () => lastFetch.toISOString(),
     failCount: () => failCount,
-    nextUpdate: () => delayNext/1000
+    nextUpdate: () => (delayNext/1000)|0,
+    fetchCount: () => fetchCount
   };
 }
 

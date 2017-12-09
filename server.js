@@ -87,6 +87,7 @@ function image(img){
       <li>Last fetch: ${img.lastFetch()}
       <li>Next fetch: ${img.nextUpdate()} seconds
       <li>Fail count: ${img.failCount()}
+      <li>Fetches: ${img.fetchCount()}
     </ul>
   </div>`;
 }
