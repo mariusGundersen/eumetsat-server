@@ -57,8 +57,8 @@ module.exports = function start({title, log, imageUrl, json, covers = []}) {
   fetch();
 
   return {
-    getLatest(){
-      fetchCount++;
+    getLatest(ignore){
+      if(!ignore) fetchCount++;
       return latest;
     },
     lastFetch: () => lastFetch.toISOString(),

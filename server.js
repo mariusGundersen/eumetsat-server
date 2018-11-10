@@ -54,8 +54,8 @@ const images = [
   }
 ];
 
-router.get('/:longitude/:time.jpeg', ({req, res, params}, next) => {
-  const latest = closest(parseFloat(params.longitude)).getLatest();
+router.get('/:longitude/:time.jpeg', ({req, res, params, query}, next) => {
+  const latest = closest(parseFloat(params.longitude)).getLatest(query.ignore);
   console.log('->', new Date().toISOString(), req.url);
   res.writeHead(200, {'Content-Type': 'image/jpeg' });
   res.end(latest, 'binary');
@@ -85,7 +85,7 @@ app
 function image(img){
   return template`<div class="location">
     <h2>Longitude: ${img.longitude}</h2>
-    <img src="/${img.longitude}/latest.jpeg" />
+    <img src="/${img.longitude}/latest.jpeg?ignore=1" />
     <ul>
       <li>Last fetch: ${img.lastFetch()}
       <li>Next fetch: ${img.nextUpdate()} seconds
