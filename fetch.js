@@ -1,7 +1,9 @@
 const Jimp = require('jimp');
 const request = require('request');
 
-module.exports = function start({log, imageUrl, json, covers = []}) {
+const fs = require('fs').promises;
+
+module.exports = function start({title, log, imageUrl, json, covers = []}) {
   let latest = undefined;
   let fetchCount = 0;
   let lastFetch = new Date();
@@ -13,22 +15,28 @@ module.exports = function start({log, imageUrl, json, covers = []}) {
     while(true){
       try{
         const url = await getUrl(imageUrl, json, log);
-        log('fetching', url, new Date());
+        const now = new Date();
+        log('fetching', url, now);
         const image = await Jimp.read(url);
-        let hash;
-        const buffer = await new Promise((res, rej) => {
-          hash = image.hash();
-          if(latestHash == hash) return rej(new Error('not updated yet'));
-          image.resize(360, 360);
-          for(const [x, y, width, height] of covers){
-            image.scan(x, y, width, height, blacken);
-          }
-          image.getBuffer('image/jpeg', (err, buffer) => err ? rej(err) : res(buffer))
-        });
+        const hash = image.hash();
+        if(latestHash == hash) throw new Error('not updated yet');
+
+        log('writing image to disk');
+        const path = `/mnt/earths/${title}/${now.getFullYear()}-${pad(now.getMonth())}-${pad(now.getDate())}`;
+        await fs.mkdir(path, {recursive: true});
+        const file = `${path}/${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}.jpg`;
+        await image.write(file);
+        log('Wrote', file);
+
+        image.resize(360, 360);
+        for(const [x, y, width, height] of covers){
+          image.scan(x, y, width, height, blacken);
+        }
+
+        latest = await new Promise((res, rej) => image.getBuffer('image/jpeg', (err, ok) => err ? rej(err) : res(ok)));
         latestHash = hash;
-        latest = buffer;
         log('fetch success', latestHash);
-        lastFetch = new Date();
+        lastFetch = now;
         const milliseconds = getTimeout();
         log(`next fetch in ${milliseconds/1000}s`);
         delayNext = milliseconds;
@@ -37,7 +45,7 @@ module.exports = function start({log, imageUrl, json, covers = []}) {
         await delay(milliseconds);
       }catch(e){
         log(`fetch failed`)
-        log(e.message);
+        log(e && e.message);
         failCount++;
         delayNext = failCount*60*1000;
         log(`next fetch in ${60*failCount}s`);
@@ -71,6 +79,7 @@ function blacken(x, y, idx) {
   this.bitmap.data[ idx + 1 ] = 0;
   this.bitmap.data[ idx + 2 ] = 0;
 }
+const pad = n => n < 10 ? '0'+n : ''+n;
 
 async function getUrl(imgUrl, jsonUrl, log){
   if(!jsonUrl) return imgUrl;

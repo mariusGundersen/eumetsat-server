@@ -1,6 +1,5 @@
 const Koa = require('koa');
 const Router = require('koa-router');
-const chalk = require('chalk');
 
 const fetch = require('./fetch.js');
 
@@ -11,6 +10,7 @@ const images = [
   {
     longitude: -89.5,
     ...fetch({
+      title: 'america',
       imageUrl: timestamp => `http://rammb-slider.cira.colostate.edu/data/imagery/${timestamp.toString(10).substr(0,8)}/goes-16---full_disk/natural_color/${timestamp}/00/000_000.png`,
       json: "http://rammb-slider.cira.colostate.edu/data/json/goes-16/full_disk/geocolor/latest_times.json",
       log: (...m) => console.log('[-89.5]', ...m)
@@ -19,6 +19,7 @@ const images = [
   {
     longitude: 0,
     ...fetch({
+      title: 'africa',
       imageUrl: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSG_RGBNatColour_LowResolution.jpg",
       covers: [
         [0, 352, 360, 8]
@@ -29,6 +30,7 @@ const images = [
   {
     longitude: 41.5,
     ...fetch({
+      title: 'middleEast',
       imageUrl: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSGIODC_RGBNatColour_LowResolution.jpg",
       covers: [
         [0, 352, 360, 8]
@@ -39,6 +41,7 @@ const images = [
   {
     longitude: 140.7,
     ...fetch({
+      title: 'pacific',
       imageUrl: "http://rammb.cira.colostate.edu/ramsdis/online/images/thumb/himawari-8/full_disk_ahi_natural_color.jpg",
       covers: [
         [0, 0, 110, 10],
