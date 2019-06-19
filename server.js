@@ -20,7 +20,7 @@ const images = [
     longitude: 0,
     ...fetch({
       title: 'africa',
-      imageUrl: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSG_RGBNatColour_LowResolution.jpg",
+      imageUrl: "https://eumetview.eumetsat.int/static-images/latestImages/EUMETSAT_MSG_RGBNatColourEnhncd_LowResolution.jpg",
       covers: [
         [0, 352, 360, 8]
       ],
@@ -31,7 +31,7 @@ const images = [
     longitude: 41.5,
     ...fetch({
       title: 'middleEast',
-      imageUrl: "http://oiswww.eumetsat.org/IPPS/html/latestImages/EUMETSAT_MSGIODC_RGBNatColour_LowResolution.jpg",
+      imageUrl: "https://eumetview.eumetsat.int/static-images/latestImages/EUMETSAT_MSGIODC_RGBNatColourEnhncd_LowResolution.jpg",
       covers: [
         [0, 352, 360, 8]
       ],
